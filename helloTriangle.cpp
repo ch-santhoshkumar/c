@@ -74,6 +74,7 @@ private:
 		VkApplicationInfo appInfo{};
 		
 		std::vector<const char*> instanceExtensions;
+		std::vector<const char*> instanceLayers;
 		
 		appInfo.sType=VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName="Hello Triangle";
@@ -100,6 +101,8 @@ private:
 		for(int i=0; i<layerCount; i++)
 		{
 			std::cout << layerList[i].layerName << "\n";
+			//instanceLayers.push_back(layerList[i].layerName );
+
 		}
 		
 		VkInstanceCreateInfo createInfo{};
@@ -108,8 +111,8 @@ private:
 		createInfo.pApplicationInfo=&appInfo;
 		createInfo.enabledExtensionCount=extensionCount;
 		createInfo.ppEnabledExtensionNames=instanceExtensions.data();
-		createInfo.enabledLayerCount=0;
-		createInfo.ppEnabledLayerNames=nullptr;
+		createInfo.enabledLayerCount=0;//layerCount;
+		createInfo.ppEnabledLayerNames=nullptr;//instanceLayers.data();
 		//Creating Instance
 		if(vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS){
 			throw std::runtime_error("Instance creation failed");
@@ -347,6 +350,7 @@ private:
 
 	void createLogicalDevice(){
 		uint32_t deviceExtensionCount=0;
+		uint32_t deviceLayerCount=0;
 		float queuePriority=0.1f;
 		//char swapchainEx = VK_KHR_swapchain ;
 		const std::vector<const char*>Ex={VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -385,6 +389,15 @@ private:
 		{
 			std::cout<<list.extensionName<<"\n";
 		}
+		vkEnumerateDeviceLayerProperties(physicalDevice, &deviceLayerCount, nullptr);
+		std::cout<<"Available Device Layers="<<deviceLayerCount<<"\n";
+		std::vector<VkLayerProperties> deviceLayerList(deviceLayerCount);
+		vkEnumerateDeviceLayerProperties(physicalDevice, &deviceLayerCount, deviceLayerList.data());
+		for(const auto& list: deviceLayerList)
+		{
+			std::cout<<list.layerName<<"\n";
+		}
+
 		//queue handle 
 		vkGetDeviceQueue(device, graphicsQueue, 0, &queue);
 		std::cout <<"Queue handle obtained successfully"<<"\n";
